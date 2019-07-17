@@ -30,6 +30,8 @@
     "typescript": "^3.5.2"
   },
   "dependencies": {
-    "concurrently": "^4.1.1"
+    "concurrently": "^4.1.1",
+    "telegraf": "^3.30.1",
+    "telegram-typings": "^4.0.0-beta"
   }
 }

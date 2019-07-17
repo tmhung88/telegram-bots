@@ -1,10 +1,3 @@
-class App {
-    greet(name: string): string {
-        return `Hello ${name}`;
-    }
-}
+import bot from "./bot";
 
-const app = new App;
-console.log(app.greet("World"));
-
-export { App };
+bot.launch();
