@@ -1,5 +1,7 @@
 const config = {
-    botToken: "123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ"
+    botToken: "123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ",
+    tmdbApiKey: "214579870adsf8702375087aef808da8f",
+    wathlistFile: "./watchlist.json"
 };
 
 export default config;
