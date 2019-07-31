@@ -40,4 +40,4 @@ yarn.lock
 
 # sensitive info
 config.ts
-
+watchlist.json
