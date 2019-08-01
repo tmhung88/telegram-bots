@@ -12,6 +12,7 @@ interface Genre {
 
 class Video {
     id: string;
+    key: string;
     name: string;
     site: string;
     size: number;
