@@ -11,6 +11,7 @@ interface Genre {
 }
 
 class Video {
+
     id: string;
     key: string;
     name: string;
@@ -18,7 +19,7 @@ class Video {
     size: number;
     type: string;
 
-    getUrl(): string {
+    get url(): string {
         switch (this.site.toLowerCase()) {
             case "youtube":
                 return `https://www.youtube.com/watch?v=${this.key}`;
@@ -47,7 +48,7 @@ class Movie {
             type: "article",
             id: this.id.toString(),
             title: `${this.title} (${this.year})`,
-            input_message_content: {message_text: `Movie ${this.id} - ${this.title} details. ${this.getMostPopularTrailer().getUrl()}`},
+            input_message_content: {message_text: `Movie ${this.id} - ${this.title} details. ${this.getMostPopularTrailer().url}`},
             thumb_url: this.thumbUrl,
             description: this.overview
             };
@@ -61,7 +62,6 @@ class Movie {
 
     getMostPopularTrailer(): Video {
         const trailer = this.videos.find(video => video.type == "Trailer");
-    
         if (trailer) {
             console.log(`Trailer ${this.title}`, trailer);
             return trailer;
@@ -85,7 +85,7 @@ class WatchlistRepo {
         return rawMovies.map(rawMovie => {
             const movie = Object.assign(new Movie(), rawMovie);
             const rawVideos: Array<any> = movie.videos;
-            movie.videos = rawVideos.map(rawVideo => Object.assign(new Video(), rawVideo));
+            movie.videos = rawVideos.map(rawVideo => Object.assign(new Video, rawVideo));
             return movie;
         });
     }

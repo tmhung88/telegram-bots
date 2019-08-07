@@ -1,2 +1,2 @@
 import bot from "./bot";
-bot.launch();
+// bot.launch();
