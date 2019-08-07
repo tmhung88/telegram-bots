@@ -1,8 +1,18 @@
 
-import * as restm from "typed-rest-client/RestClient";
+import wretch, { Wretcher } from "wretch";
 import { Video, Movie } from "./watchlist";
 import config from "../config";
 import { InlineQueryResultArticle } from "telegram-typings";
+
+import * as formData from "form-data";
+import { URLSearchParams } from "url";
+import nodeFetch from "node-fetch";
+
+wretch().polyfills({
+    fetch: nodeFetch,
+    FormData: formData,
+    URLSearchParams,
+});
 
 
 interface TrailerDetails {
@@ -77,28 +87,29 @@ class SearchResult {
 
 class TmdbMovieClient {
     private _apiKey: string;
-    private restClient: restm.RestClient;
+    private movieClient: Wretcher;
+    private searchClient: Wretcher;
 
     constructor(apiKey: string) {
         this._apiKey = apiKey;
-        this.restClient = new restm.RestClient("tmdb-movie-client", "https://api.themoviedb.org");
+        this.movieClient =  wretch("https://api.themoviedb.org/3/movie").query({api_key: apiKey});
+        this.searchClient = wretch(`https://api.themoviedb.org/3/search/multi`)
+        .query({api_key: apiKey, include_adult: false});
     }
 
     async find(query: string): Promise<Array<SearchResult>> {
-        const response: restm.IRestResponse<Page<SearchResult>> = await this.restClient.get<Page<SearchResult>>(`/3/search/multi?page=1&include_adult=false&api_key=${this._apiKey}&query=${query}`);
-        const searchResults = response.result.results;
-        // filter out movies that don't have poster
-        // Display runtime, score, tv series next to title
+        const response = await this.searchClient.query({page: 1, query: query}).get().json();
+        const searchResults: SearchResult[] = response.results;
         return searchResults.map(result => Object.assign(new SearchResult(), result))
                     .filter(result => result.media_type == "movie" || result.media_type == "tv")
                     .sort((m1, m2) => m2.year - m1.year);
     }
 
     async get(movieId: number): Promise<Movie> {
-        const detailResponse: restm.IRestResponse<Movie> = await this.restClient.get<Movie>(`/3/movie/${movieId}?api_key=${this._apiKey}`);
-        const trailerResponse: restm.IRestResponse<TrailerDetails> = await this.restClient.get<TrailerDetails>(`/3/movie/${movieId}/videos?api_key=${this._apiKey}`);
-        const movieDetails = detailResponse.result;
-        movieDetails.videos = trailerResponse.result.results;
+        const detailResponse: Movie = await this.movieClient.url(`/${movieId}`).get().json();
+        const trailerResponse: TrailerDetails = await this.movieClient.url(`/${movieId}/videos`).get().json();
+        const movieDetails = detailResponse;
+        movieDetails.videos = trailerResponse.results;
         return movieDetails;
     }
 }
