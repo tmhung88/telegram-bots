@@ -1,12 +1,12 @@
-
-import wretch, { Wretcher } from "wretch";
-import { Video, Movie } from "./watchlist";
+import { Movie, Video } from "./watchlist";
 import config from "../config";
 import { InlineQueryResultArticle } from "telegram-typings";
 
 import * as formData from "form-data";
 import { URLSearchParams } from "url";
 import nodeFetch from "node-fetch";
+import wretch, { Wretcher } from "wretch";
+import { WretcherFactory, wretcherFactory } from "../wretcher-factory";
 
 wretch().polyfills({
     fetch: nodeFetch,
@@ -81,28 +81,32 @@ class SearchResult {
             input_message_content: {message_text: `Movie ${this.id} - ${this.title} added`},
             thumb_url: this.thumbUrl,
             description: this.overview
-            };
+        };
     }
 }
 
 class TmdbMovieClient {
-    private _apiKey: string;
-    private movieClient: Wretcher;
-    private searchClient: Wretcher;
+    static v3Api = {
+        movie: "https://api.themoviedb.org/3/movie",
+        search: "https://api.themoviedb.org/3/search/multi"
+    };
+    apiKey: string;
+    movieClient: Wretcher;
+    searchClient: Wretcher;
 
-    constructor(apiKey: string) {
-        this._apiKey = apiKey;
-        this.movieClient =  wretch("https://api.themoviedb.org/3/movie").query({api_key: apiKey});
-        this.searchClient = wretch(`https://api.themoviedb.org/3/search/multi`)
-        .query({api_key: apiKey, include_adult: false});
+    constructor(apiKey: string, wretcherFactory: WretcherFactory) {
+        this.apiKey = apiKey;
+        this.movieClient = wretcherFactory.create(TmdbMovieClient.v3Api.movie).query({api_key: apiKey});
+        this.searchClient = wretcherFactory.create(TmdbMovieClient.v3Api.search)
+            .query({api_key: apiKey, include_adult: false});
     }
 
-    async find(query: string): Promise<Array<SearchResult>> {
+    async find(query: string): Promise<SearchResult[]> {
         const response = await this.searchClient.query({page: 1, query: query}).get().json();
         const searchResults: SearchResult[] = response.results;
         return searchResults.map(result => Object.assign(new SearchResult(), result))
-                    .filter(result => result.media_type == "movie" || result.media_type == "tv")
-                    .sort((m1, m2) => m2.year - m1.year);
+            .filter(result => result.media_type == "movie" || result.media_type == "tv")
+            .sort((m1, m2) => m2.year - m1.year);
     }
 
     async get(movieId: number): Promise<Movie> {
@@ -114,6 +118,6 @@ class TmdbMovieClient {
     }
 }
 
-const tmdbMovieClient = new TmdbMovieClient(config.tmdbApiKey);
+const tmdbMovieClient = new TmdbMovieClient(config.tmdbApiKey, wretcherFactory);
 export default tmdbMovieClient;
 export { TmdbMovieClient };

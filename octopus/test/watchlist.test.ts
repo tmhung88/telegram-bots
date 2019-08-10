@@ -1,7 +1,5 @@
-import { Video, Movie } from "../src/bot/watchlist";
-
-import { TmdbMovieClient } from "../src/bot/tmdb-movie-client";
-import { mock, when, instance } from "ts-mockito";
+import { Movie, Video } from "../src/bot/watchlist";
+import { instance, mock, when } from "ts-mockito";
 
 describe("[Video]", () => {
 
@@ -22,14 +20,6 @@ describe("[Video]", () => {
 });
 
 describe("[Movie]", () => {
-    const sampleMovie = () => {
-        const movie = new Movie();
-        movie.id = 123;
-        movie.poster_path = "/relative-post-path";
-        movie.release_date = "2000-01-30";
-        movie.runtime = 120;
-        return movie;
-    };
     describe("[year]", () => {
         it("return the year from the release date", () => {
             const movie = new Movie();
