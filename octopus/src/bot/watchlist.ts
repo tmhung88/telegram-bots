@@ -63,18 +63,16 @@ class Movie {
     getMostPopularTrailer(): Video {
         const trailer = this.videos.find(video => video.type == "Trailer");
         if (trailer) {
-            console.log(`Trailer ${this.title}`, trailer);
             return trailer;
         } else {
             const teaser =  this.videos.find(video => video.type == "Teaser");
-            console.log(`Teaser ${this.title}`, teaser);
             return teaser;
         }
     }
 }
 
 class WatchlistRepo {
-    private _file: string;
+    private readonly _file: string;
     private _tmdbMovieClient: TmdbMovieClient;
     constructor(file: string, tmdbMovieClient: TmdbMovieClient) {
         this._file = file;
@@ -97,7 +95,6 @@ class WatchlistRepo {
             return;
         }
         const movie = await this._tmdbMovieClient.get(movieId);
-        console.log("Add movie", movie);
         allMovies.push(movie);
         this._save(allMovies);
     }

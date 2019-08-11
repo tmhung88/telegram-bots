@@ -54,7 +54,9 @@ class SearchResult {
     }
 
     set first_air_date(date: string) {
-        this._release_date = date;
+        if (!this._release_date) {
+            this._release_date = date;
+        }
     }
 
     set release_date(date: string) {
@@ -120,4 +122,4 @@ class TmdbMovieClient {
 
 const tmdbMovieClient = new TmdbMovieClient(config.tmdbApiKey, wretcherFactory);
 export default tmdbMovieClient;
-export { TmdbMovieClient };
+export { TmdbMovieClient, SearchResult };

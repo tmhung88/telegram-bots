@@ -16,5 +16,22 @@ const mockWretcherFactory = (urls: string[]): [WretcherFactory, Wretcher[]] => {
     return [factory, wretchers];
 };
 
+interface MockResponseChain extends Promise<any> {
+    json: () => Promise<any>;
+}
 
-export { mockWretcherFactory };
+const success = (data: any): Wretcher => {
+    const response = Promise.resolve(data);
+    const responseChain: MockResponseChain = {
+        [Symbol.toStringTag]: "",
+        json: () => response,
+        catch: response.catch,
+        then: response.then,
+        finally: response.finally
+    };
+
+    const wretcher = mock(Wretcher);
+    when(wretcher.get()).thenReturn(responseChain);
+    return instance(wretcher);
+};
+export { mockWretcherFactory, success };
