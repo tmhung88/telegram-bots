@@ -1,6 +1,22 @@
-import { anything, instance, mock, when } from "ts-mockito";
+import { anyString, anything, instance, mock, when } from "ts-mockito";
 import { WretcherFactory } from "../src/wretcher-factory";
 import { Wretcher } from "wretch";
+import Telegraf, { ContextMessageUpdate, Middleware } from "telegraf";
+
+interface TelegrafMiddlewareTrigger<T extends ContextMessageUpdate> {
+    start?: Middleware<T>;
+    help?: Middleware<T>;
+    on: { [eventType: string]: Middleware<T> };
+}
+
+const mockTelegraf = <T extends ContextMessageUpdate>(): [Telegraf<T>, TelegrafMiddlewareTrigger<T>] => {
+    const telegraf = mock(Telegraf);
+    const trigger: TelegrafMiddlewareTrigger<T> = {on: {}};
+    when(telegraf.start(anything())).thenCall((middleware: Middleware<T>) => trigger.start = middleware);
+    when(telegraf.help(anything())).thenCall((middleware: Middleware<T>) => trigger.help = middleware);
+    when(telegraf.on(anyString(), anything())).thenCall((eventType: string, middlware: Middleware<T>) => trigger.on[eventType] = middlware);
+    return [telegraf, trigger];
+};
 
 const mockWretcherFactory = (urls: string[]): [WretcherFactory, Wretcher[]] => {
     const factory = mock(WretcherFactory);
@@ -34,4 +50,4 @@ const success = (data: any): Wretcher => {
     when(wretcher.get()).thenReturn(responseChain);
     return instance(wretcher);
 };
-export { mockWretcherFactory, success };
+export { mockWretcherFactory, success, mockTelegraf };

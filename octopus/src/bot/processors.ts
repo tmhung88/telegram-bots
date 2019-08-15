@@ -99,4 +99,4 @@ const watchlistCommandHandler = new WatchlistCommandHandler([
     new EmptyCommandHandler()]);
 const inlineQueryProcessor = new InlineQueryProcessor([watchlistCommandHandler]);
 const chosenInlineResultProcessor = new ChosenInlineResultProcessor();
-export { inlineQueryProcessor, chosenInlineResultProcessor };
+export { inlineQueryProcessor, chosenInlineResultProcessor, InlineQueryProcessor, ChosenInlineResultProcessor };
