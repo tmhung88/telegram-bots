@@ -61,11 +61,11 @@ class ShowWatchlistCommandHandler implements CommandHandler {
     };
 }
 
-class EmptyCommandHandler implements CommandHandler {
+class UnknownCommandHandler implements CommandHandler {
     doHandle = (ctx: ContextMessageUpdate): boolean => {
         return true;
     };
-    handle = (ctx: ContextMessageUpdate): void | Promise<void> => {
+    handle = (ctx: ContextMessageUpdate): void => {
         console.log(`Ignored the query [${ctx.inlineQuery.query}]`);
     };
 }
@@ -99,7 +99,14 @@ class ChosenInlineResultProcessor {
 const watchlistCommandHandler = new WatchlistCommandHandler([
     new ShowWatchlistCommandHandler(),
     new AddWatchListCommandHandler(tmdbMovieClient),
-    new EmptyCommandHandler()]);
+    new UnknownCommandHandler()]);
 const inlineQueryProcessor = new InlineQueryProcessor([watchlistCommandHandler]);
 const chosenInlineResultProcessor = new ChosenInlineResultProcessor();
-export { inlineQueryProcessor, chosenInlineResultProcessor, InlineQueryProcessor, ChosenInlineResultProcessor, AddWatchListCommandHandler };
+export {
+    inlineQueryProcessor,
+    chosenInlineResultProcessor,
+    InlineQueryProcessor,
+    ChosenInlineResultProcessor,
+    AddWatchListCommandHandler,
+    UnknownCommandHandler
+};

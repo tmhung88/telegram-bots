@@ -1,4 +1,4 @@
-import { AddWatchListCommandHandler } from "../../src/bot/processors";
+import { AddWatchListCommandHandler, UnknownCommandHandler } from "../../src/bot/processors";
 import { mockCtx } from "../mock-utilities";
 import { SearchResult, TmdbMovieClient } from "../../src/bot/tmdb-movie-client";
 import { anyString, anything, deepEqual, instance, mock, objectContaining, reset, verify, when } from "ts-mockito";
@@ -41,6 +41,36 @@ describe("[AddWatchListCommandHandler]", () => {
             when(movieClient.find("superman")).thenReturn(Promise.resolve(searchResults));
             await handle(ctx);
             verify(telegram.answerInlineQuery(ctx.inlineQuery.id, deepEqual(inlineArticles), objectContaining({cache_time: 5}))).once();
+        });
+    });
+});
+
+describe("[ShowWatchlistCommandHandler]", () => {
+    describe("[doHandle()]", () => {
+    });
+
+    describe("[handle()]", () => {
+    });
+});
+
+describe("[UnknownCommandHandler]", () => {
+    const handler = new UnknownCommandHandler();
+    beforeAll(() => {
+        jest.spyOn(console, "log");
+    });
+    afterAll(() => {
+        jest.resetAllMocks();
+    });
+    describe("[doHandle()]", () => {
+        it("do handle any command", () => {
+            expect(handler.doHandle(mockCtx({}))).toBeTruthy();
+        });
+    });
+    describe("[handle()]", () => {
+        it("ignore the inputted command", () => {
+            const query = "unknown command";
+            handler.handle(mockCtx({query: query}));
+            expect(console.log).toHaveBeenCalledWith(`Ignored the query [${query}]`);
         });
     });
 });
