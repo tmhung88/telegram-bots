@@ -1,7 +1,8 @@
 import { anyString, anything, instance, mock, when } from "ts-mockito";
 import { WretcherFactory } from "../src/wretcher-factory";
 import { Wretcher } from "wretch";
-import Telegraf, { ContextMessageUpdate, Middleware } from "telegraf";
+import Telegraf, { ContextMessageUpdate, Middleware, Telegram } from "telegraf";
+import * as tt from "telegraf/typings/telegram-types";
 
 interface TelegrafMiddlewareTrigger<T extends ContextMessageUpdate> {
     start?: Middleware<T>;
@@ -32,6 +33,14 @@ const mockWretcherFactory = (urls: string[]): [WretcherFactory, Wretcher[]] => {
     return [factory, wretchers];
 };
 
+const mockCtx = (query: Partial<tt.InlineQuery>, telegram?: Telegram): ContextMessageUpdate => {
+    const emptyQuery: tt.InlineQuery = {from: undefined, id: "", offset: "", query: ""};
+    const ctx = mock<ContextMessageUpdate>();
+    ctx.inlineQuery = {...emptyQuery, ...query};
+    ctx.telegram = telegram;
+    return ctx;
+};
+
 interface MockResponseChain extends Promise<any> {
     json: () => Promise<any>;
 }
@@ -50,4 +59,4 @@ const success = (data: any): Wretcher => {
     when(wretcher.get()).thenReturn(responseChain);
     return instance(wretcher);
 };
-export { mockWretcherFactory, success, mockTelegraf };
+export { mockWretcherFactory, success, mockTelegraf, mockCtx };

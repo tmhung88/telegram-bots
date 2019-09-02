@@ -1,6 +1,6 @@
 import { ContextMessageUpdate } from "telegraf";
 import watchlistRepo from "./watchlist";
-import tmdbMovieClient from "./tmdb-movie-client";
+import tmdbMovieClient, { TmdbMovieClient } from "./tmdb-movie-client";
 
 
 interface CommandHandler {
@@ -28,6 +28,8 @@ class WatchlistCommandHandler implements CommandHandler {
 }
 
 class AddWatchListCommandHandler implements CommandHandler {
+    constructor(public tmdbMovieClient: TmdbMovieClient) {
+    }
     doHandle = (ctx: ContextMessageUpdate): boolean => {
         const query = ctx.inlineQuery.query.toLowerCase().trim();
         return query.startsWith("watchlist add");
@@ -39,7 +41,8 @@ class AddWatchListCommandHandler implements CommandHandler {
         if (keyword.length == 0) {
             return;
         }
-        const searchResults = await tmdbMovieClient.find(keyword);
+
+        const searchResults = await this.tmdbMovieClient.find(keyword);
         const inlineResults = searchResults.map(result => result.toInlineArticle());
         telegram.answerInlineQuery(inlineQuery.id, inlineResults, {cache_time: 5});
     };
@@ -95,8 +98,8 @@ class ChosenInlineResultProcessor {
 
 const watchlistCommandHandler = new WatchlistCommandHandler([
     new ShowWatchlistCommandHandler(),
-    new AddWatchListCommandHandler(),
+    new AddWatchListCommandHandler(tmdbMovieClient),
     new EmptyCommandHandler()]);
 const inlineQueryProcessor = new InlineQueryProcessor([watchlistCommandHandler]);
 const chosenInlineResultProcessor = new ChosenInlineResultProcessor();
-export { inlineQueryProcessor, chosenInlineResultProcessor, InlineQueryProcessor, ChosenInlineResultProcessor };
+export { inlineQueryProcessor, chosenInlineResultProcessor, InlineQueryProcessor, ChosenInlineResultProcessor, AddWatchListCommandHandler };
